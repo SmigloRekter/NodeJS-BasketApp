@@ -102,6 +102,6 @@ const User = sequelize.define('Users', {
 
 
 
-  sequelize.sync({force:true})
+  //sequelize.sync()
 
   module.exports = { User, Game,Playground,Comment };
