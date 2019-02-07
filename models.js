@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 
-const sequelize = new Sequelize('monsterek', 'monsterek', 'lcQPr4rdk51v4THx', {
+const sequelize = new Sequelize('basket_node', 'basket_node', 'UpTxH5i14BmhoX7A', {
     host: '87.98.236.38',
     dialect: 'mysql',
   
@@ -15,7 +15,7 @@ const sequelize = new Sequelize('monsterek', 'monsterek', 'lcQPr4rdk51v4THx', {
     operatorsAliases: false
   });
 
-const User = sequelize.define('users', {
+const User = sequelize.define('Users', {
     id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -35,25 +35,73 @@ const User = sequelize.define('users', {
     }
   });
 
-  const Comment = this.sequelize.define('comment', {
+  const Game = sequelize.define('Games', {
+    id: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    start_date:Sequelize.DATE,
+    end_date:Sequelize.DATE,
+    players_count:Sequelize.INTEGER,
+    playgroundId:Sequelize.INTEGER
+  });
+
+  const Playground = sequelize.define('Playgrounds', {
+    id: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    city:Sequelize.STRING,
+    games_played:Sequelize.INTEGER,
+    image_location:Sequelize.STRING,
+    latitude:Sequelize.DOUBLE,
+    longitude:Sequelize.DOUBLE,
+    light:Sequelize.BOOLEAN,
+    name:Sequelize.STRING,
+    rating_count:Sequelize.INTEGER,
+    rating_sum:Sequelize.INTEGER,
+    state:{
+      type: Sequelize.ENUM,
+        values: ['OLD','NEW']
+    },
+    street:Sequelize.STRING,
+    surface:{
+      type: Sequelize.ENUM,
+        values: ['ASPHALT','RUBBER']
+    },
+    type:{
+      type: Sequelize.ENUM,
+        values: ['SCHOOL','ORLIK','OTHER']
+    }
+  });
+
+  const Comment = sequelize.define('Comments', {
     id: {type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true},
     content: Sequelize.STRING,
-    playground_id: Sequelize.INTEGER,
     user_id:Sequelize.INTEGER
   });
 
-  User.hasMany(this.Comment, {
-    foreignKey: 'user_id',
-    constraints: false,
-  });
-  Comment.belongsTo(this.User, {
-    foreignKey: 'user_id',
-    constraints: false,
-  });
+  User.hasMany(Comment, {foreignKey: 'userId'});
+  Comment.belongsTo(User,{foreignKey: 'userId' });
 
 
-  //sequelize.sync()
+  Playground.hasMany(Game, {foreignKey: 'playgroundId'});
+  Game.belongsTo(Playground, {foreignKey: 'playgroundId'});
 
-  module.exports = { Monsterek_Type, Monsterek };
+  User.belongsToMany(User, {as: 'Friends',through:'FriendsList'});
+
+  Game.belongsToMany(User, { as: 'players', through: 'User_games', foreignKey: 'gameId' })
+  User.belongsToMany(User, { as: 'games', through: 'User_games', foreignKey: 'userId' })
+
+  Playground.hasMany(Comment);
+  Comment.belongsTo(Playground);
+
+
+
+  sequelize.sync({force:true})
+
+  module.exports = { User, Game,Playground,Comment };
