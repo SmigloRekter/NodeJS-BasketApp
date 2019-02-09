@@ -44,6 +44,8 @@ const User = sequelize.define('Users', {
     start_date:Sequelize.DATE,
     end_date:Sequelize.DATE,
     players_count:Sequelize.INTEGER,
+    max_players:Sequelize.INTEGER,
+    description:Sequelize.TEXT,
     playgroundId:Sequelize.INTEGER
   });
 
