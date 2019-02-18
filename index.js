@@ -1,6 +1,8 @@
 //Init
-const { User, Game,Playground,Comment } = require('./models.js');
+const { User, Game,Playground,Comment } = require('./models/models');
 const PORT = process.env.PORT || 5000
+require('./config/passport');
+
 
 var AuthController = require('./AuthController.js');
 var GameController = require('./GameController.js');
@@ -10,9 +12,11 @@ const LoggerMiddleware = (req,res,next) =>{
     console.log(`Logged  ${req.url}  ${req.method} -- ${new Date()}`)
     next();
 }
-
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
 var express = require("express");
 var app = express();
+app.use(require('./routes'));
 app.use(LoggerMiddleware);
 
 app.get("/user", (req, res, next) => {

@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+var bcrypt = require('bcryptjs');
 
 const sequelize = new Sequelize('basket_node', 'basket_node', 'UpTxH5i14BmhoX7A', {
     host: '87.98.236.38',
@@ -15,7 +16,7 @@ const sequelize = new Sequelize('basket_node', 'basket_node', 'UpTxH5i14BmhoX7A'
     operatorsAliases: false
   });
 
-const User = sequelize.define('Users', {
+var User = sequelize.define('Users', {
     id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -33,7 +34,17 @@ const User = sequelize.define('Users', {
         type: Sequelize.ENUM,
         values: ['USER','ADMIN']
     }
-  });
+    }
+  );
+
+  User.prototype.validatePassword = function (password) {
+   return bcrypt.compareSync(password, this.password_hash);
+    };
+
+  User.prototype.setPassword = function(password) {
+    hash=bcrypt.hashSync(password, 8);
+    this.password_hash = hash;
+  };
 
   const Game = sequelize.define('Games', {
     id: {
@@ -104,6 +115,6 @@ const User = sequelize.define('Users', {
 
 
 
-  //sequelize.sync()
+  sequelize.sync()
 
   module.exports = { User, Game,Playground,Comment };

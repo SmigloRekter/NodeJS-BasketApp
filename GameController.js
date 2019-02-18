@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 router.use(bodyParser.urlencoded({extended: false}));
 router.use(bodyParser.json());
 
-const {User, Game, Playground, Comment } = require('./models.js');
+const {User, Game, Playground, Comment } = require('./models/models.js');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var config = require('./config');

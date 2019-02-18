@@ -1,11 +1,12 @@
 var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser');
+var auth=require('./routes/auth')
 
 router.use(bodyParser.urlencoded({extended: false}));
 router.use(bodyParser.json());
 
-const {User, Game, Playground, Comment } = require('./models.js');
+const {User, Game, Playground, Comment } = require('./models/models');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var config = require('./config');
@@ -84,7 +85,8 @@ router.post('/login', function (req, res) {
     if (!user) return res.status(404).send({
       status: "FAIL"
     });
-    var passwordIsValid = bcrypt.compareSync(req.body.password, user.password_hash);
+    
+    var passwordIsValid = user.validatePassword(req.body.password);
     if (!passwordIsValid) return res.status(401).send({
       auth: false,
       token: null
@@ -100,5 +102,19 @@ router.post('/login', function (req, res) {
     });
   });
 });
+
+router.get('/current', auth.required, (req, res, next) => {
+  const { payload: { id } } = req;
+
+  return User.findByPk(id)
+    .then((user) => {
+      if(!user) {
+        return res.sendStatus(400);
+      }
+
+      return res.json({ user: "gitara" });
+    });
+});
+
 
 module.exports = router;
