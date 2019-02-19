@@ -1,37 +1,37 @@
 var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser');
-var auth=require('./routes/auth');
+const passport = require('passport');
 var randomstring = require("randomstring");
-var emailer=require('./config/emailer')
+var emailer = require('./config/emailer')
 
-router.use(bodyParser.urlencoded({extended: false}));
+router.use(bodyParser.urlencoded({
+  extended: false
+}));
 router.use(bodyParser.json());
 
-const {User} = require('./models/models');
+const {
+  User
+} = require('./models/models');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var config = require('./config');
 
-router.post('/identify', function (req,res) {
-  var token = req.body.token;
-  var j = jwt.decode(token);
-  User.findById(j.id).then(u => {
-    res.status(200).send(u);
-  });
-});
+router.get('/resetPassword/:email', function (req, res) {
 
-router.get('/resetPassword/:email', function (req,res) {
-
-  var user_email=req.params.email;
+  var user_email = req.params.email;
   console.log(user_email);
-  var newPassword=randomstring.generate({
+  var newPassword = randomstring.generate({
     length: 7,
     charset: 'alphabetic'
   });
 
-  User.findOne({where:{email:user_email}}).then(user=>{
-user.setPassword(newPassword);
+  User.findOne({
+    where: {
+      email: user_email
+    }
+  }).then(user => {
+    user.setPassword(newPassword);
   });
 
   let mailOptions = {
@@ -46,25 +46,13 @@ user.setPassword(newPassword);
   res.status(200).send({
     status: "OK"
   });
-  
+
 });
 
 router.post('/register', function (req, res) {
 
-  var hashedPassword = bcrypt.hashSync(req.body.password, 8);
-
-  const temp_user = User.build({
-    city: req.body.city,
-    email: req.body.email,
-    password_hash: hashedPassword,
-    games_played: 0,
-    avatar_location: req.body.avatar_location,
-    name: req.body.name,
-    surname: req.body.surname,
-    login: req.body.login,
-    role: req.body.role
-  })
-
+  const temp_user = User.build(req.body.user);
+  temp_user.setPassword(req.body.user.password);
 
   User.findOne({
     where: {
@@ -111,7 +99,7 @@ router.post('/login', function (req, res) {
     if (!user) return res.status(404).send({
       status: "FAIL"
     });
-    
+
     var passwordIsValid = user.validatePassword(req.body.password);
     if (!passwordIsValid) return res.status(401).send({
       auth: false,
@@ -129,17 +117,12 @@ router.post('/login', function (req, res) {
   });
 });
 
-router.get('/current', auth.required, (req, res, next) => {
-  const { payload: { id } } = req;
+router.get('/current', passport.authenticate('jwt', {
+  session: false
+}), (req, res, next) => {
 
-  return User.findByPk(id)
-    .then((user) => {
-      if(!user) {
-        return res.sendStatus(400);
-      }
-      else
-      return res.json(user);
-    });
+  return res.json(req.user);
+
 });
 
 

@@ -4,7 +4,7 @@ const PORT = process.env.PORT || 5000
 require('./config/passport');
 
 
-
+var test = require('./test');
 var AuthController = require('./AuthController.js');
 var GameController = require('./GameController.js');
 //var PlaygroundController = require('./PlaygroundController.js');
@@ -51,6 +51,7 @@ app.get("/user", (req, res, next) => {
 
 app.use('/api/auth', AuthController);
 app.use('/api/game', GameController);
+app.use('/test',test);
 //app.use('/api/playground', PlaygroundController);
 module.exports = app;
 app.listen(PORT, () => {

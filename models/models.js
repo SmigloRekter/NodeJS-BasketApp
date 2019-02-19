@@ -25,25 +25,26 @@ var User = sequelize.define('Users', {
     city:Sequelize.STRING,
     email:Sequelize.STRING,
     passwordHash:Sequelize.STRING,
-    gamesPlayed:Sequelize.INTEGER,
+    gamesPlayed:{type:Sequelize.INTEGER,defaultValue:0},
     avatarLocation:Sequelize.STRING,
     name:Sequelize.STRING,
     surname:Sequelize.STRING,
     login:Sequelize.STRING,
     role: {
         type: Sequelize.ENUM,
-        values: ['USER','ADMIN']
+        values: ['USER','ADMIN'],
+        defaultValue:'USER'
     }
     }
   );
 
   User.prototype.validatePassword = function (password) {
-   return bcrypt.compareSync(password, this.password_hash);
+   return bcrypt.compareSync(password, this.passwordHash);
     };
 
   User.prototype.setPassword = function(password) {
     hash=bcrypt.hashSync(password, 8);
-    this.password_hash = hash;
+    this.passwordHash = hash;
   };
 
   const Game = sequelize.define('Games', {
@@ -54,10 +55,9 @@ var User = sequelize.define('Users', {
     },
     startDate:Sequelize.DATE,
     endDate:Sequelize.DATE,
-    playersCount:Sequelize.INTEGER,
+    playersCount:{type:Sequelize.INTEGER,defaultValue:0},
     maxPlayers:Sequelize.INTEGER,
-    description:Sequelize.TEXT,
-    playgroundId:Sequelize.INTEGER
+    description:Sequelize.TEXT
   });
 
   const Playground = sequelize.define('Playgrounds', {
@@ -94,27 +94,28 @@ var User = sequelize.define('Users', {
     id: {type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true},
-    content: Sequelize.STRING,
-    userId:Sequelize.INTEGER
+    content: Sequelize.STRING
   });
 
-  User.hasMany(Comment, {foreignKey: 'userId'});
-  Comment.belongsTo(User,{foreignKey: 'userId' });
+  User.hasMany(Comment);
+  Comment.belongsTo(User);
 
 
-  Playground.hasMany(Game, {foreignKey: 'playgroundId'});
-  Game.belongsTo(Playground, {foreignKey: 'playgroundId'});
+  Playground.hasMany(Game);
+  Game.belongsTo(Playground);
 
   User.belongsToMany(User, {as: 'Friends',through:'FriendsList'});
 
-  Game.belongsToMany(User, { as: 'players', through: 'User_games', foreignKey: 'gameId' })
-  User.belongsToMany(User, { as: 'games', through: 'User_games', foreignKey: 'userId' })
+  Game.belongsToMany(User, { through: 'UserGames', foreignKey: 'gameId' });
+  User.belongsToMany(Game, {  through: 'UserGames', foreignKey: 'userId' });
+
+
 
   Playground.hasMany(Comment);
   Comment.belongsTo(Playground);
 
 
 
-  sequelize.sync({force:true})
+  sequelize.sync();
 
   module.exports = { User, Game,Playground,Comment };
