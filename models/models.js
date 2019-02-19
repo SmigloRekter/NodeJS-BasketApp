@@ -24,9 +24,9 @@ var User = sequelize.define('Users', {
     },
     city:Sequelize.STRING,
     email:Sequelize.STRING,
-    password_hash:Sequelize.STRING,
-    games_played:Sequelize.INTEGER,
-    avatar_location:Sequelize.STRING,
+    passwordHash:Sequelize.STRING,
+    gamesPlayed:Sequelize.INTEGER,
+    avatarLocation:Sequelize.STRING,
     name:Sequelize.STRING,
     surname:Sequelize.STRING,
     login:Sequelize.STRING,
@@ -52,10 +52,10 @@ var User = sequelize.define('Users', {
         primaryKey: true,
         autoIncrement: true
     },
-    start_date:Sequelize.DATE,
-    end_date:Sequelize.DATE,
-    players_count:Sequelize.INTEGER,
-    max_players:Sequelize.INTEGER,
+    startDate:Sequelize.DATE,
+    endDate:Sequelize.DATE,
+    playersCount:Sequelize.INTEGER,
+    maxPlayers:Sequelize.INTEGER,
     description:Sequelize.TEXT,
     playgroundId:Sequelize.INTEGER
   });
@@ -67,14 +67,14 @@ var User = sequelize.define('Users', {
         autoIncrement: true
     },
     city:Sequelize.STRING,
-    games_played:Sequelize.INTEGER,
-    image_location:Sequelize.STRING,
+    gamesPlayed:Sequelize.INTEGER,
+    imageLocation:Sequelize.STRING,
     latitude:Sequelize.DOUBLE,
     longitude:Sequelize.DOUBLE,
     light:Sequelize.BOOLEAN,
     name:Sequelize.STRING,
-    rating_count:Sequelize.INTEGER,
-    rating_sum:Sequelize.INTEGER,
+    ratingCount:Sequelize.INTEGER,
+    ratingSum:Sequelize.INTEGER,
     state:{
       type: Sequelize.ENUM,
         values: ['OLD','NEW']
@@ -95,7 +95,7 @@ var User = sequelize.define('Users', {
         primaryKey: true,
         autoIncrement: true},
     content: Sequelize.STRING,
-    user_id:Sequelize.INTEGER
+    userId:Sequelize.INTEGER
   });
 
   User.hasMany(Comment, {foreignKey: 'userId'});
@@ -115,6 +115,6 @@ var User = sequelize.define('Users', {
 
 
 
-  sequelize.sync()
+  sequelize.sync({force:true})
 
   module.exports = { User, Game,Playground,Comment };
