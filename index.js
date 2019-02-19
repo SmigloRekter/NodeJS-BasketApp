@@ -19,6 +19,8 @@ var app = express();
 app.use(require('./routes'));
 app.use(LoggerMiddleware);
 
+
+
 app.get("/user", (req, res, next) => {
     User.findAll().then(users => {
         res.json(users);
