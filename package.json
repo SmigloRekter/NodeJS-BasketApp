@@ -14,12 +14,16 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
     "express": "^4.16.4",
     "express-jwt": "^5.3.1",
     "jsonwebtoken": "^8.4.0",
     "mysql2": "^1.6.4",
+    "nodemailer": "^5.1.1",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
-    "sequelize": "^4.42.0"
+    "randomstring": "^1.1.5",
+    "sequelize": "^4.42.0",
+    "swagger-ui-express": "^4.0.2"
   }
 }

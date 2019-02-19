@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser');
+var auth=require('./routes/auth');
+
 
 router.use(bodyParser.urlencoded({extended: false}));
 router.use(bodyParser.json());
@@ -10,15 +12,22 @@ var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var config = require('./config');
 
-router.post('/add', function (req,res) {
+router.post('/add', auth.required, function (req,res) {
     
-})
 
-router.post('/get', function (req,res) {
-    Game.findById(req.body.game_id).then(g => {
-        res.status(200).send(g);
+    const tempGame = Game.build(req.body.game);
+    tempGame.save().then(()=>{
+        res.status(200).send();
     })
-})
+
+});
+
+router.get('/:id', function (req,res) {
+    var id=req.params.id;
+    Game.findByPk(id).then(game => {
+        res.status(200).send(game);
+    });
+});
 
 router.post('/all', function (req,res) {
     Game.findAll().then(games => {

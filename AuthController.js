@@ -1,12 +1,14 @@
 var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser');
-var auth=require('./routes/auth')
+var auth=require('./routes/auth');
+var randomstring = require("randomstring");
+var emailer=require('./config/emailer')
 
 router.use(bodyParser.urlencoded({extended: false}));
 router.use(bodyParser.json());
 
-const {User, Game, Playground, Comment } = require('./models/models');
+const {User} = require('./models/models');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var config = require('./config');
@@ -16,12 +18,36 @@ router.post('/identify', function (req,res) {
   var j = jwt.decode(token);
   User.findById(j.id).then(u => {
     res.status(200).send(u);
-  })
-})
+  });
+});
 
-router.post('/reset_password', function (req,res) {
-  res.status(200).send("TODO");
-})
+router.get('/resetPassword/:email', function (req,res) {
+
+  var user_email=req.params.email;
+  console.log(user_email);
+  var newPassword=randomstring.generate({
+    length: 7,
+    charset: 'alphabetic'
+  });
+
+  User.findOne({where:{email:user_email}}).then(user=>{
+user.setPassword(newPassword);
+  });
+
+  let mailOptions = {
+    from: '"BasketApp" <sebastian@hes.pl>', // sender address
+    to: user_email, // list of receivers
+    subject: "Zmiana hasła", // Subject line
+    text: newPassword
+  };
+
+  emailer.sendMail(mailOptions);
+
+  res.status(200).send({
+    status: "OK"
+  });
+  
+});
 
 router.post('/register', function (req, res) {
 
@@ -111,10 +137,12 @@ router.get('/current', auth.required, (req, res, next) => {
       if(!user) {
         return res.sendStatus(400);
       }
-
-      return res.json({ user: "gitara" });
+      else
+      return res.json(user);
     });
 });
+
+
 
 
 module.exports = router;
