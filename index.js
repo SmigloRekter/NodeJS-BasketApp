@@ -48,7 +48,6 @@ app.get("/user", (req, res, next) => {
 
    });
 
-
 app.use('/api/auth', AuthController);
 app.use('/api/game', GameController);
 app.use('/test',test);
