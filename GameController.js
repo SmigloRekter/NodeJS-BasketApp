@@ -100,4 +100,5 @@ router.get('/leave/:id', passport.authenticate('jwt', {
 
 });
 
+
 module.exports = router;
