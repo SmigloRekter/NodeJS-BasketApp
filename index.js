@@ -1,23 +1,23 @@
 //Init
 const { User, Game,Playground,Comment } = require('./models/models');
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 5000;
 require('./config/passport');
 
 
 var test = require('./test');
 var AuthController = require('./AuthController.js');
 var GameController = require('./GameController.js');
-//var PlaygroundController = require('./PlaygroundController.js');
+var PlaygroundController = require('./PlaygroundController');
 
 const LoggerMiddleware = (req,res,next) =>{
-    console.log(`Logged  ${req.url}  ${req.method} -- ${new Date()}`)
+    console.log(`Logged  ${req.url}  ${req.method} -- ${new Date()}`);
     next();
-}
+};
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 var express = require("express");
 var app = express();
-var cors = require('cors')
+var cors = require('cors');
 // Add headers
 app.use(function (req, res, next) {
 
@@ -52,7 +52,7 @@ app.get("/user", (req, res, next) => {
 app.use('/api/auth', AuthController);
 app.use('/api/game', GameController);
 app.use('/test',test);
-//app.use('/api/playground', PlaygroundController);
+app.use('/api/ground', PlaygroundController);
 module.exports = app;
 app.listen(PORT, () => {
  console.log("Server running on port 5000");

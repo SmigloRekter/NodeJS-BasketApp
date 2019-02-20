@@ -1,6 +1,6 @@
-var express = require('express');
-var router = express.Router();
-var bodyParser = require('body-parser');
+const express = require('express');
+const router = express.Router();
+const bodyParser = require('body-parser');
 const passport = require('passport');
 
 
@@ -10,20 +10,17 @@ router.use(bodyParser.urlencoded({
 router.use(bodyParser.json());
 
 const {
+    UserGames,
     User,
     Game,
-    Playground,
-    Comment
+    Playground
 } = require('./models/models.js');
-var jwt = require('jsonwebtoken');
-var bcrypt = require('bcryptjs');
-var config = require('./config');
 
-router.post('/add', passport.authenticate('jwt', {
+router.post('', passport.authenticate('jwt', {
     session: false
 }), function (req, res) {
 
-    var user = req.user;
+    const user = req.user;
 
     Game.create(req.body.game).then(game => {
         game.addUser(user);
@@ -40,13 +37,33 @@ router.get('/:id', passport.authenticate('jwt', {
     });
 });
 
-router.get('/all', passport.authenticate('jwt', {
+router.get('', passport.authenticate('jwt', {
     session: false
 }), function (req, res) {
     Game.findAll().then(games => {
         res.json(games);
     })
-})
+});
+
+router.get('/plays/:id', passport.authenticate('jwt', {
+    session: false
+}), function (req, res) {
+
+    var user = req.user;
+    var id = req.params.id;
+
+    UserGames.count({
+        where: {
+            GameId: id,
+            UserId: user.id
+        }
+    }).then(cnt => {
+        if (cnt == 0)
+            res.status(200).send();
+        else
+            res.status(403).send();
+    });
+});
 
 router.get('/join/:id', passport.authenticate('jwt', {
     session: false
@@ -55,12 +72,12 @@ router.get('/join/:id', passport.authenticate('jwt', {
     var user = req.user;
     var id = req.params.id;
     Game.findByPk(id).then(game => {
-        game.getUsers({}).then(players => {
-            if (players.includes(user))
-                res.status(400).send();
+        user.getGames().then(games => {
+            if (games.includes(game))
+                res.status(403).send();
             else {
                 game.addUser(user);
-                game.playersCount+=1;
+                game.playersCount += 1;
                 game.save();
                 res.status(200).send(game);
             }
@@ -70,8 +87,17 @@ router.get('/join/:id', passport.authenticate('jwt', {
 
 });
 
-router.get('/leave', function (req, res) {
+router.get('/leave/:id', passport.authenticate('jwt', {
+    session: false
+}), function (req, res) {
 
-})
+    var user = req.user;
+    var id = req.params.id;
+    Game.findByPk(id).then(game => {
+        game.removeUser(user);
+        res.status(200).send();
+    });
+
+});
 
 module.exports = router;
