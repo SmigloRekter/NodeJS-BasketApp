@@ -71,9 +71,8 @@ const Playground = sequelize.define('Playgrounds', {
     latitude: Sequelize.DOUBLE,
     longitude: Sequelize.DOUBLE,
     light: Sequelize.BOOLEAN,
+    rating: Sequelize.DOUBLE,
     name: Sequelize.STRING,
-    ratingCount: Sequelize.INTEGER,
-    ratingSum: Sequelize.INTEGER,
     state: {
         type: Sequelize.ENUM,
         values: ['OLD', 'NEW']
@@ -90,16 +89,33 @@ const Playground = sequelize.define('Playgrounds', {
 });
 
 const Comment = sequelize.define('Comments', {
-    id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    content: Sequelize.STRING
+
+    content: Sequelize.STRING,
+    rating: Sequelize.INTEGER,
+    PlaygroundId: {type: Sequelize.INTEGER, primaryKey: true},
+    UserId: {type: Sequelize.INTEGER, primaryKey: true}
 });
 
+Playground.prototype.updateRating = function () {
+
+    Comment.findAll({where: {PlaygroundId: this.id}}).then(
+        comments => {
+            var rating = 0.0;
+
+            comments.forEach(function (comment) {
+                rating += comment.rating;
+            });
+            rating /= comments.length;
+            console.log(rating);
+            this.rating = rating.toFixed(2);
+            this.save();
+        }
+    )
+
+};
+
 User.hasMany(Comment);
-Comment.belongsTo(User);
+Comment.belongsTo(User, {through: 'UserId'});
 
 
 Playground.hasMany(Game);
@@ -114,8 +130,7 @@ User.belongsToMany(Game, {through: UserGames});
 
 
 Playground.hasMany(Comment);
-Comment.belongsTo(Playground);
-
+Comment.belongsTo(Playground, {through: 'PlaygroundId'});
 
 sequelize.sync();
 
