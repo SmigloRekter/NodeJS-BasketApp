@@ -26,5 +26,8 @@
     "randomstring": "^1.1.5",
     "sequelize": "^4.42.0",
     "swagger-ui-express": "^4.0.2"
+  },
+  "devDependencies": {
+    "express-swagger-generator": "^1.1.13"
   }
 }

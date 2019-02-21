@@ -17,6 +17,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local');
 var express = require("express");
 var app = express();
+const expressSwagger = require('express-swagger-generator')(app);
 var cors = require('cors');
 // Add headers
 app.use(function (req, res, next) {
@@ -28,7 +29,7 @@ app.use(function (req, res, next) {
    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
    // Request headers you wish to allow
-   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    res.setHeader('Access-Control-Allow-Headers', '*');
 
    // Set to true if you need the website to include cookies in the requests sent
    // to the API (e.g. in case you use sessions)
@@ -37,6 +38,35 @@ app.use(function (req, res, next) {
    // Pass to next layer of middleware
    next();
 });
+
+let options = {
+    swaggerDefinition: {
+        info: {
+            description: 'This is a sample server',
+            title: 'Swagger',
+            version: '1.0.0',
+        },
+        host: 'localhost:3000',
+        basePath: '/',
+        produces: [
+            "application/json",
+            "application/xml"
+        ],
+        schemes: ['http', 'https'],
+        securityDefinitions: {
+            JWT: {
+                type: 'apiKey',
+                in: 'header',
+                name: 'Authorization',
+                description: "",
+            }
+        }
+    },
+    basedir: __dirname, //app absolute path
+    files: ['./GameController.js'] //Path to the API handle folder
+};
+expressSwagger(options);
+
 app.use(require('./routes'));
 app.use(LoggerMiddleware);
 
@@ -47,6 +77,7 @@ app.get("/user", (req, res, next) => {
       })
 
    });
+
 
 app.use('/api/auth', AuthController);
 app.use('/api/game', GameController);

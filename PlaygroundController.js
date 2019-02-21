@@ -11,39 +11,49 @@ var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var config = require('./config');
 
-router.post('/add', passport.authenticate('jwt', {
+router.post('', passport.authenticate('jwt', {
     session: false
 }), function (req, res) {
-
-    const user = req.user;
 
     Playground.create(req.playground).then(
         playground => {
             res.status(200).send(playground);
         }
     );
-
-
 });
 
-router.get('/get', function (req, res) {
-    Playground.findById(req.body.game_id).then(g => {
-        res.status(200).send(g);
+router.get('/:id', function (req, res) {
+    var id = req.params.id;
+    Playground.findByPk(id, {
+        include: [{model: Comment}, {model: Game}]
+    }).then(court => {
+        res.status(200).send(court);
     })
 });
 
-router.post('/all', function (req,res) {
+router.get('', function (req, res) {
     Playground.findAll().then(games => {
         res.json(games);
     })
 });
 
-router.post('/rate', function (req,res) {
+router.post('/rate', passport.authenticate('jwt', {
+    session: false
+}), function (req, res) {
+
+
+    Comment.create(req.body.comment, {UserId: req.user.id}).then(comment => {
+        //comment.setUser(req.user);
+        comment.getPlayground().then(playground => {
+            comment.setPlayground(playground);
+            playground.updateRating();
+
+            res.status(200).send();
+        });
+
+    })
+
+
 
 });
-
-router.post('/add_comment', function (req,res) {
-
-});
-
 module.exports = router;
